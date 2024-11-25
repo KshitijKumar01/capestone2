@@ -88,3 +88,4 @@ if __name__ == '__main__':
     # Create tables before starting the application
     # create_tables()
     app.run(debug=True)
+
