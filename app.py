@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 
 # Initialize Flask app
@@ -31,21 +31,24 @@ class Order(db.Model):
 
 @app.route('/', methods=['GET'])
 def start():
-    return jsonify({'message': 'hello'})
+    # return jsonify({'message': 'hello'})
+    return render_template('index.html')
+
 
 
 @app.route('/users', methods=['GET', 'POST'])
 def handle_users():
     if request.method == 'POST':
-        data = request.get_json()
+        data = request.json
         user = User(name=data['username'])
         db.session.add(user)
         db.session.commit()
         return jsonify({'message': 'User created!', 'user': {'id': user.id, 'name': user.username}})
     
     users = User.query.all()
-    return jsonify([{'id': user.id, 'name': user.username} for user in users])
- 
+    return render_template('users.html', users=users) 
+
+
 @app.route('/products', methods=['GET', 'POST'])
 def handle_products():
     if request.method == 'POST':
@@ -56,7 +59,7 @@ def handle_products():
         return jsonify({'message': 'Product created!', 'product': {'id': product.id, 'name': product.name, 'price': product.price}})
     
     products = Product.query.all()
-    return jsonify([{'id': product.id, 'name': product.name, 'price': product.price} for product in products])
+    return render_template('products.html', products=products)
  
 @app.route('/orders', methods=['GET', 'POST'])
 def handle_orders():
@@ -68,14 +71,20 @@ def handle_orders():
         return jsonify({'message': 'Order created!', 'order': {'id': order.id, 'user_id': order.user_id, 'product_id': order.product_id}})
     
     orders = Order.query.all()
-    return jsonify([{'id': order.id, 'user_id': order.user_id, 'product_id': order.product_id} for order in orders])
+    return render_template('orders.html', orders=orders)
  
 # Initialize the database
-def create_tables():
+# def create_tables():
+#     with app.app_context():
+#         db.create_all()
+
+@app.before_request
+def init_db():
     with app.app_context():
         db.create_all()
+        db.session.commit()
  
 if __name__ == '__main__':
     # Create tables before starting the application
-    create_tables()
+    # create_tables()
     app.run(debug=True)

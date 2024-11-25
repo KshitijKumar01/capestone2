@@ -1,0 +1,48 @@
+# Service for Flask App
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-service
+spec:
+  type: NodePort
+  selector:
+    app: sample-python-flask-app  # Matches deployment app label
+    component: app  # Matches deployment component label
+  ports:
+    - port: 5000
+      targetPort: 5000
+      nodePort: 30001
+
+
+---
+
+# Service for Adminer
+apiVersion: v1
+kind: Service
+metadata:
+  name: adminer-service
+spec:
+  type: NodePort
+  selector:
+    app: sample-python-flask-app  # Matches deployment app label
+    component: adminer  # Matches deployment component label
+  ports:
+    - port: 9090
+      targetPort: 9090
+      nodePort: 30002
+
+---
+
+# Service for PostgreSQL Database
+apiVersion: v1
+kind: Service
+metadata:
+  name: database-service
+spec:
+  type: ClusterIP
+  selector:
+    app: sample-python-flask-app  # Matches deployment app label
+    component: database  # Matches deployment component label
+  ports:
+    - port: 5432
+      targetPort: 5432

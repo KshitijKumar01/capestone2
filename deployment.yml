@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-python-flask-app
+  labels:
+    app: sample-python-flask-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sample-python-flask-app
+  template:
+    metadata:
+      labels:
+        app: sample-python-flask-app
+        component: app  # Added 'component: app' to match the service
+    spec:
+      containers:
+      - name: app
+        image: kshitijk010/flask-app-withui
+        ports:
+          - containerPort: 5000
+        env:
+          - name: SQLALCHEMY_DATABASE_URI
+            value: "postgresql://postgres:postgres@database:5432/flask_app_db"
+
+      - name: database
+        image: postgres:13
+        ports:
+          - containerPort: 5432
+        env:
+          - name: POSTGRES_USER
+            value: "postgres"
+          - name: POSTGRES_PASSWORD
+            value: "postgres"
+          - name: POSTGRES_DB
+            value: "flask_app_db"
+        envFrom: []
+        
+      - name: adminer
+        image: adminer:latest
+        ports:
+          - containerPort: 9090
